@@ -1,8 +1,9 @@
+require("dotenv").config();
+const path = require("path");
 const express = require("express");
 const passport = require("passport");
 const mongoose = require("mongoose");
 const { logExpress, logDB } = require("../miscNodeFunctions/logging");
-require("dotenv").config();
 
 const app = express();
 app.use(express.static("public"));
@@ -23,9 +24,10 @@ mongoose.Promise = global.Promise;
 app.use("/api/auth", require("./routes/authentication"));
 app.use("/api/user", passport.authenticate("jwt", { session: false }), require("./routes/user"));
 
-if (process.env.ENVIRONMENT == "PRODUCTION") {
+app.use(express.static("build"));
+if (process.env.NODE_ENV == "PRODUCTION") {
   app.get("/*", function (req, res) {
-    res.sendFile(path.join(__dirname + "../../../dist/index.html"));
+    res.sendFile(path.join(__dirname + "../../../build/index.html"));
   });
 }
 
