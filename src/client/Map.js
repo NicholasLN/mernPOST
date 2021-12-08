@@ -10,8 +10,8 @@ const fetchCounties = async () => {
 };
 
 export default function Map(props) {
-  const [width, setWidth] = React.useState(window.innerWidth);
-  const [height, setHeight] = React.useState(window.innerHeight);
+  const [width, setWidth] = React.useState(props.width);
+  const [height, setHeight] = React.useState(props.height);
   const [mode, setMode] = React.useState("viewNeighboring");
 
   const populatePaths = (counties) => {
@@ -50,6 +50,9 @@ export default function Map(props) {
       );
       path.attr("data-for", "tooltip");
     }
+    // Make the SVG only as large as the counties
+    var bbox = d3.select("#map g").node().getBBox();
+    d3.select("#map").attr("viewBox", `${bbox.x} ${bbox.y} ${bbox.width} ${bbox.height}`);
   };
 
   const createSvg = (counties) => {
@@ -64,36 +67,15 @@ export default function Map(props) {
 
   React.useEffect(() => {
     console.log("Map component mounted");
-    // Create a resize listener that will update the width and height of the svg. Wait a second though to save performance.
-    const handleResize = () => {
-      setTimeout(() => {
-        setWidth(window.innerWidth);
-        setHeight(window.innerHeight);
-      }, 100);
-    };
-    window.addEventListener("resize", handleResize);
-
-    // Fetch the counties.
     fetchCounties().then((res) => {
       var counties = res.data;
-      // Create the svg.
       createSvg(counties);
     });
   }, []);
 
-  // The map viewbox should fit the window width and height.
   return (
-    <div id="map1" style={{ background: "lightBlue" }} className="flex justify-center items-center h-100 w-100">
-      <svg
-        id="map"
-        style={{ shapeRendering: "crispEdges" }}
-        viewBox={`0 0 ${width} ${height}`}
-        width={width}
-        height={height}
-        preserveAspectRatio="xMidYMid slice"
-        xmlns="http://www.w3.org/2000/svg"
-        xmlnsXlink="http://www.w3.org/1999/xlink"
-      >
+    <div id="map1" style={{ background: "lightBlue" }}>
+      <svg id="map" width={width} height={height}>
         <g />
       </svg>
       <ReactTooltip

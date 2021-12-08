@@ -90,7 +90,7 @@ router.post("/login", async (req, res, next) => {
 
       req.login(user, { session: false }, async (error) => {
         if (error) return next(error);
-        const body = { _id: user._id, email: user.email, username: user.username };
+        const body = { _id: user._id, email: user.email, username: user.username, role: user.role };
         const token = jwt.sign({ user: body }, process.env.JWT_SECRET_KEY);
         // Set cookie.
         // If rememberMe is true, set the cookie to expire in 7 days. Otherwise, set it to expire in 1 day.

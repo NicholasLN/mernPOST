@@ -3,6 +3,14 @@ const localStrategy = require("passport-local").Strategy;
 const userModel = require("../models/User");
 require("dotenv").config();
 
+var cookieExtractor = function (req) {
+  var token = null;
+  if (req && req.cookies) {
+    token = req.cookies["access_token"];
+  }
+  return token;
+};
+
 // Sign Up/Registration strategy. It should take three fields (email, username, password) and create a new user in the database.
 // Make sure to handle any errors that may occur. (for example, username not being provided.)
 passport.use(
@@ -53,16 +61,50 @@ passport.use(
 
 const JWTstrategy = require("passport-jwt").Strategy;
 const ExtractJWT = require("passport-jwt").ExtractJwt;
-
+// Create a strtagy for the JWT strategy.
+// The JWT strategy should take the JWT from the authorization header and extract the user id from it.
+// The JWT strategy should then find the user in the database and return it.
+// If the user is not found, return false.
+// If the user is found, return the user.
 passport.use(
+  "jwt",
   new JWTstrategy(
+    // Extract the JWT from the cookie "access_token"
     {
       secretOrKey: process.env.JWT_SECRET_KEY,
-      jwtFromRequest: ExtractJWT.fromUrlQueryParameter("secret_token"),
+      jwtFromRequest: cookieExtractor,
     },
     async (token, done) => {
       try {
-        return done(null, token.user);
+        const user = await userModel.findById(token.user._id);
+        if (!user) {
+          return done(null, false);
+        }
+        return done(null, user);
+      } catch (error) {
+        console.log(error);
+        done(error);
+      }
+    }
+  )
+);
+
+// Strategy to verify that user role is dev.
+// If the user is not a dev, return false.
+passport.use(
+  "isDev",
+  new JWTstrategy(
+    {
+      secretOrKey: process.env.JWT_SECRET_KEY,
+      jwtFromRequest: cookieExtractor,
+    },
+    async (token, done) => {
+      try {
+        const user = await userModel.findById(token.user._id);
+        if (user.role !== "dev") {
+          return done(null, false);
+        }
+        return done(null, user);
       } catch (error) {
         console.log(error);
         done(error);

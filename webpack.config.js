@@ -5,6 +5,7 @@ const path = require("path");
 const webpack = require("webpack");
 const CompressionPlugin = require("compression-webpack-plugin");
 const NodePolyFillPlugin = require("node-polyfill-webpack-plugin");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const outputDirectory = "build";
 require("dotenv").config();
 
@@ -32,14 +33,7 @@ let config = {
       },
       {
         test: /\.css$/,
-        use: [
-          {
-            loader: "style-loader",
-          },
-          {
-            loader: "css-loader",
-          },
-        ],
+        use: [MiniCssExtractPlugin.loader, "css-loader", "postcss-loader"],
       },
       {
         test: /\.less$/,
@@ -81,9 +75,14 @@ let config = {
     ],
   },
   plugins: [
+    new MiniCssExtractPlugin({
+      filename: "./src/client/styles.css",
+      chunkFilename: "styles.css",
+    }),
     new HtmlWebPackPlugin({
       template: `./public/index.html`,
       favicon: `./public/favicon.ico`,
+      inject: true,
     }),
     new NodePolyFillPlugin(),
   ],
