@@ -9,9 +9,9 @@ const fetchCounties = async () => {
   return await axios.get("/api/info/county/fetchAllCounties");
 };
 
-export default function Map(props) {
-  const [width, setWidth] = React.useState(props.width);
-  const [height, setHeight] = React.useState(props.height);
+export default function Map({ height, width, className, onCountyClick }) {
+  const [mWidth, setWidth] = React.useState(width);
+  const [mHeight, setHeight] = React.useState(height);
   const [mode, setMode] = React.useState("viewNeighboring");
 
   const populatePaths = (counties) => {
@@ -27,22 +27,17 @@ export default function Map(props) {
       path.attr("stroke", "black");
       path.attr("stroke-width", 0.2);
 
-      if (mode === "viewNeighboring") {
-        path.on("mouseover", function (e) {
-          let clickedCounty = e.target.id;
-          let clickedCountyIndex = counties.findIndex((county) => county.countyId === clickedCounty);
-          let clickedCountyNeighbors = counties[clickedCountyIndex].neighbors;
-          clickedCountyNeighbors.forEach((neighbor) => {
-            let neighborPath = d3.select("#map g").select(`[id="${neighbor}"]`);
-            neighborPath.attr("fill", "blue");
-          });
-          d3.select(this).attr("fill", "red");
-        });
-        path.on("mouseout", function () {
-          // When the mouse is no longer hovering over a path element, reset the color of all path elements.
-          d3.selectAll("path").attr("fill", "white");
-        });
-      }
+      path.on("mouseover", function () {
+        d3.select(this).attr("fill", "red");
+      });
+      path.on("mouseout", function () {
+        d3.select(this).attr("fill", "white");
+      });
+      path.on("click", function () {
+        d3.select(this).attr("fill", "red");
+        onCountyClick(counties[i]);
+      });
+
       path.attr(
         "data-tip",
         `${counties[i].name}, ${counties[i].state}
@@ -74,8 +69,8 @@ export default function Map(props) {
   }, []);
 
   return (
-    <div id="map1" style={{ background: "lightBlue" }}>
-      <svg id="map" width={width} height={height}>
+    <div id="map1" style={{ background: "lightBlue", margin: "0", padding: "0" }} className={className}>
+      <svg id="map" width={mWidth} height={mHeight}>
         <g />
       </svg>
       <ReactTooltip

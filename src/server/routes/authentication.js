@@ -75,9 +75,10 @@ router.post("/signup", async (req, res, next) => {
  * @apiParam {String} [rememberMe] If the user wants to be remembered.
  */
 router.post("/login", async (req, res, next) => {
+  console.log(req.body);
   // Check if the user is already logged in. If they are, don't do anything.
   if (req.cookies.access_token) {
-    return res.status(200).json({ message: "Already logged in" });
+    return res.status(406).json({ message: "Already logged in" });
   }
   passport.authenticate("login", async (err, user, info) => {
     try {

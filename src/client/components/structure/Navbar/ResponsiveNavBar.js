@@ -13,6 +13,16 @@ const navbarLinks = {
       url: "/login",
       isDropdown: false,
     },
+    {
+      name: "Balls",
+      isDropdown: true,
+      dropdownLinks: [
+        {
+          name: "Balls",
+          url: "/balls",
+        },
+      ],
+    },
   ],
 };
 
@@ -31,7 +41,7 @@ function ResponsiveNavBar() {
   const toggle = () => setIsOpen(!isOpen);
 
   return (
-    <nav className="flex items-center justify-between flex-wrap dark:bg-gray-900 p-3 mb-3">
+    <nav className="flex items-center justify-between flex-wrap bg-gray-900 p-3 mb-3">
       {/* Brand */}
       <div className="flex items-center flex-shrink-0 text-white mr-4">
         <LinkContainer to="/">
@@ -55,13 +65,13 @@ function ResponsiveNavBar() {
             if (!link.isDropdown) {
               return (
                 <LinkContainer to={link.url} key={index}>
-                  <a className="block mt-2 hover:text-green-500 hover:font-bold text-md lg:inline-block lg:mt-0 mx-2 text-black dark:text-white font-poppins font-normal">{link.name}</a>
+                  <a className="block mt-2 hover:text-green-500 hover:font-bold text-md lg:inline-block lg:mt-0 mx-2 text-white font-poppins font-normal">{link.name}</a>
                 </LinkContainer>
               );
             } else {
               // This is a dropdown link. It should have a dropdown menu with all the sublinks. Make it with Tailwind.
               return (
-                <div key={index} className="block mt-2 text-md lg:inline-block lg:mt-0 mx-2 text-black dark:text-white font-poppins">
+                <div key={index} className="block mt-2 text-md lg:inline-block lg:mt-0 mx-2 text-white font-poppins">
                   <button className="text-sm" onClick={() => toggleDropdown(index)}>
                     {link.name}
                   </button>

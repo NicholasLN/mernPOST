@@ -22,6 +22,16 @@ const UserSchema = new Schema({
     required: true,
     default: "user",
   },
+  userDetails: new Schema({
+    survivorName: {
+      type: String,
+      required: true,
+    },
+    survivorLocation: {
+      type: String,
+      required: true,
+    },
+  }),
 });
 
 UserSchema.pre("save", function (next) {

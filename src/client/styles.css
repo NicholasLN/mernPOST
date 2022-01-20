@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300&display=swap');
-
+@import url('https://fonts.googleapis.com/css2?family=Syne+Mono&display=swap');
 @layer utilities {
   .h-95{
     height: 95%;
@@ -10,4 +10,18 @@
   .h-5p{
     min-height: 5%;
   }
-}
+  .h-fit-content{
+    height: fit-content;
+  }
+  .extraClass {
+    border: 3px black solid !important;
+    font-size: 15px !important;
+    pointer-events: auto !important;
+    padding:0;
+    margin:0;
+  }
+  .extraClass:hover {
+   visibility: visible !important;
+   opacity: 1 !important;
+  }
+} 

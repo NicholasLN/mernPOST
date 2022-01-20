@@ -47,7 +47,7 @@ passport.use(
         if (!user) {
           return done(null, false, { message: "Incorrect credentials, or user not found." });
         }
-        if (!user.isValidPassword(password)) {
+        if (!(await user.isValidPassword(password))) {
           return done(null, false, { message: "Incorrect credentials, or user not found." });
         }
         return done(null, user, { message: "Logged in successfully" });

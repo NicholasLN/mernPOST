@@ -6,7 +6,7 @@ const webpack = require("webpack");
 const CompressionPlugin = require("compression-webpack-plugin");
 const NodePolyFillPlugin = require("node-polyfill-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const outputDirectory = "build";
+const outputDirectory = "dist";
 require("dotenv").config();
 
 let config = {
