@@ -45,7 +45,7 @@ router.post("/signup", async (req, res, next) => {
     }
     if (!user) {
       return res.status(400).json({
-        message: err,
+        message: info.message,
       });
     }
     req.login(user, { session: false }, async (err) => {
@@ -75,7 +75,6 @@ router.post("/signup", async (req, res, next) => {
  * @apiParam {String} [rememberMe] If the user wants to be remembered.
  */
 router.post("/login", async (req, res, next) => {
-  console.log(req.body);
   // Check if the user is already logged in. If they are, don't do anything.
   if (req.cookies.access_token) {
     return res.status(406).json({ message: "Already logged in" });
@@ -83,16 +82,15 @@ router.post("/login", async (req, res, next) => {
   passport.authenticate("login", async (err, user, info) => {
     try {
       if (err || !user) {
-        // Send an error message with the "message" property in info.
+        // Send an error message
         return res.status(400).json({
-          message: info.message,
+          message: "Invalid Username or Password",
         });
       }
 
       req.login(user, { session: false }, async (error) => {
         if (error) return next(error);
-        const body = { _id: user._id, email: user.email, username: user.username, role: user.role };
-        const token = jwt.sign({ user: body }, process.env.JWT_SECRET_KEY);
+        const token = jwt.sign({ user }, process.env.JWT_SECRET_KEY);
         // Set cookie.
         // If rememberMe is true, set the cookie to expire in 7 days. Otherwise, set it to expire in 1 day.
         if (req.body.rememberMe) {
@@ -103,7 +101,7 @@ router.post("/login", async (req, res, next) => {
         logGame(`${user.username} logged in. IP: ${req.ip}`, true);
         return res.status(200).json({
           message: "Login successful",
-          body: body,
+          user,
         });
       });
     } catch (error) {

@@ -11,6 +11,7 @@ const UserSchema = new Schema({
   password: {
     type: String,
     required: true,
+    select: false,
   },
   username: {
     type: String,
@@ -22,7 +23,11 @@ const UserSchema = new Schema({
     required: true,
     default: "user",
   },
-  userDetails: new Schema({
+  uniqueId: {
+    type: String,
+    unique: true,
+  },
+  survivorDetails: new Schema({
     survivorName: {
       type: String,
       required: true,
@@ -34,20 +39,24 @@ const UserSchema = new Schema({
   }),
 });
 
-UserSchema.pre("save", function (next) {
+UserSchema.pre("save", async function (next) {
   const user = this;
-  if (user.isModified("password")) {
-    bcrypt.hash(user.password, 10).then(function (hash) {
-      user.password = hash;
-      next();
-    });
-  } else {
-    next();
+  // Generate a unique id for the user, and make sure it's unique.
+  const uniqueId = Math.round(Math.random() * 100000000000000); // 16 digits long
+  const found = await UserModel.findOne({ uniqueId });
+  if (!found) {
+    user.uniqueId = uniqueId;
   }
+  // Hash the password before saving the user model
+  if (user.isModified("password")) {
+    user.password = await bcrypt.hash(user.password, 10);
+  }
+  next();
 });
 
 UserSchema.methods.isValidPassword = async function (password) {
-  const user = this;
+  const user = await UserModel.findOne({ username: this.username }).select("+password").exec();
+  console.log(user);
   const compare = await bcrypt.compare(password, user.password);
 
   return compare;

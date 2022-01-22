@@ -30,8 +30,12 @@ app.get("/api/getClientIp", async (req, res) => {
 /* Authentication Routes (login, signup, logout) */
 app.use("/api/auth", require("./routes/authentication"));
 app.use("/api/scripts/counties", require("./routes/scripts/counties"));
+
 /* Private User Routes */
-app.use("/api/user", passport.authenticate("jwt", { session: false }), require("./routes/user"));
+app.use("/api/user", passport.authenticate("jwt", { session: false }), require("./routes/main/user/user"));
+/* Public User Routes */
+app.use("/api/userinfo", require("./routes/main/user/userinfo"));
+
 /* Info Routes */
 
 // County Info

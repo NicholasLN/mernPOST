@@ -1,6 +1,7 @@
 const passport = require("passport");
 const localStrategy = require("passport-local").Strategy;
 const userModel = require("../models/User");
+const County = require("../models/County");
 require("dotenv").config();
 
 var cookieExtractor = function (req) {
@@ -23,10 +24,32 @@ passport.use(
     },
     async (req, email, password, done) => {
       try {
-        const user = await userModel.create({ email, password, username: req.body.username });
-        return done(null, user, { message: "User created successfully" });
+        // Make sure survivorName and survivorLocation are provided.
+        if (!req.body.survivorName || !req.body.survivorLocation) {
+          return done("Please provide a survivor name and location.");
+        } else {
+          // Validate that survivorLocation exists within the County model.
+          var found = await County.findOne({ countyId: req.body.survivorLocation });
+          if (!found) {
+            return done("Please provide a valid county.");
+          }
+          var user = await userModel.create({
+            email,
+            password,
+            username: req.body.username,
+            survivorDetails: {
+              survivorName: req.body.survivorName,
+              survivorLocation: req.body.survivorLocation,
+            },
+          });
+          user = await userModel.findOne({ username: req.body.username });
+          if (user) {
+            return done(null, user, { message: "User created successfully" });
+          }
+        }
       } catch (error) {
-        done("Error creating user. Likely a duplicate unique value like email or username.");
+        console.log(error);
+        return done("Error creating user. Likely a duplicate unique value like email or username.");
       }
     }
   )
@@ -61,6 +84,7 @@ passport.use(
 
 const JWTstrategy = require("passport-jwt").Strategy;
 const ExtractJWT = require("passport-jwt").ExtractJwt;
+
 // Create a strtagy for the JWT strategy.
 // The JWT strategy should take the JWT from the authorization header and extract the user id from it.
 // The JWT strategy should then find the user in the database and return it.
